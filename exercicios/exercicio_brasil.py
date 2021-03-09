@@ -1,6 +1,7 @@
-
-estados = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
-           'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
+import numpy as np
+import pandas as pd
+estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
+           'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
 dict_vizinhanca = {'AC': ["AM", "RO"],
                    'AL': ['PE', "SE", "BA"],
                    'AM': ['AC', "RR", "RO", "MT", "PA"],
@@ -28,14 +29,24 @@ dict_vizinhanca = {'AC': ["AM", "RO"],
                    "SE": ["BA", "AL"],
                    "SP": ["MG", "RJ", "PR", "MS"],
                    "TO": ["MA", "PI", "BA", "GO", "MT", "PA"]}
-matriz = []
-import numpy as np
+matriz_adjacencia = []
+args_pandas = {'index':estados, 'columns':estados}
+to_pandas = lambda x: pd.DataFrame(x,**args_pandas)
+
 for chave,lista in dict_vizinhanca.items():
     linha = [int(sigla in lista) for sigla in estados]
-    matriz.append(linha)
-matriz = np.array(matriz)
-print(matriz)
+    matriz_adjacencia.append(linha)
+
+matriz_adjacencia = to_pandas(matriz_adjacencia)
+
+print(matriz_adjacencia)
 dict_graus = dict([(chave,len(lista)) for chave,lista in dict_vizinhanca.items()])
-print(dict_graus)
+
 d = np.diag(list(dict_graus.values()))
-print(d)
+lista_qtd_vizinhos = list(dict_graus.values())
+# print(lista_qtd_vizinhos == np.max(lista_qtd_vizinhos))
+estado_com_menos_vizinhos = estados[lista_qtd_vizinhos == np.min(lista_qtd_vizinhos)]
+estado_com_mais_vizinhos = estados[lista_qtd_vizinhos == np.max(lista_qtd_vizinhos)]
+walks = to_pandas(np.linalg.matrix_power(matriz_adjacencia,2))
+
+print(walks)
