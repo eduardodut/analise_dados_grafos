@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy
+from funcoes_coloracao import colorir_grafo_greedy,graph_to_png
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
            'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
@@ -53,12 +53,15 @@ m_aux = matriz_adjacencia
 p = 1
 
 if __name__ == "__main__":
-    num_simulacoes =  2000   
+    graph_to_png(matriz_adjacencia.values,
+                 'grafo_Brasil.png',
+                  estados)
+    num_simulacoes =  200   
     dict_no = dict()
     for i,estado in enumerate(estados):
         lista = []
         for _ in range(num_simulacoes):
-            lista.append(colorir_grafo_greedy(matriz_adjacencia.values, i))
+            lista.append(max(colorir_grafo_greedy(matriz_adjacencia.values, i)))
         dict_no[estado] = np.mean(lista)
 
     import pprint
