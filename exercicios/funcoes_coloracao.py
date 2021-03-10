@@ -44,6 +44,53 @@ def colorir_grafo_greedy(matriz_adjacencia, ponto_partida):
 
     return lista_cores_utilizadas
 
+def graph_to_mp4(matriz_adjacencia, titulo,num_quadros=10,tempo_segundos=5, lista_labels=[]):
+    import random
+    random.seed()
+    import networkx as nx
+    from matplotlib import pyplot as plt
+    from matplotlib.colors import get_named_colors_mapping
+    from celluloid import Camera
+    import matplotlib.pyplot as plt
+
+    grafo = nx.from_numpy_array(matriz_adjacencia)
+    labels = list(range(matriz_adjacencia.shape[0]))
+        
+    if len(lista_labels) == len(labels):
+        labels = [lista_labels[l] for l in labels]
+    
+    dict_ind_label = dict([(indice, letra)
+                           for indice, letra in enumerate(labels)])
+    
+    fig, ax = plt.subplots()
+        
+    camera = Camera(fig)
+    pos = nx.circular_layout(grafo)
+    cores_atribuidas = []
+    i = 20
+    
+    for n in range(num_quadros):
+        
+        if (cores_atribuidas == [] )| ( n % i == 0):
+            ponto_partida = random.choice(range(len(labels)))
+            cores_atribuidas = colorir_grafo_greedy(matriz_adjacencia, ponto_partida)
+        cores = random_colors(max(cores_atribuidas))
+
+       
+        nx.draw(grafo,
+                pos,
+                ax=ax,
+                labels=dict_ind_label,
+                node_color=cores_atribuidas,
+                font_color='white',
+                with_labels=True)
+        camera.snap()
+
+    animation = camera.animate()
+    fps = num_quadros//tempo_segundos
+    animation.save(titulo+".mp4", fps=fps)
+    plt.close(fig) 
+
 
 def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[], ponto_partida = -1):
     import random
@@ -62,9 +109,7 @@ def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[], ponto_partida
 
     if len(lista_labels) == len(labels):
         labels = [lista_labels[l] for l in labels]
-    # dict_cores = dict([(l, cores[cores_atribuidas[i]-1])
-    #                    for i, l in enumerate(labels)])
-
+    
     f = plt.figure()
     dict_ind_label = dict([(indice, letra)
                            for indice, letra in enumerate(labels)])
@@ -78,6 +123,56 @@ def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[], ponto_partida
             font_color='white',
             with_labels=True)
     f.savefig(nome_arquivo)
+
+
+
+# def animar_grafo(matriz_adjacencia,titulo,segundos,labels,matriz_simulacoes):
+def animar_grafo(matriz,titulo,segundos,labels):
+    from matplotlib import pyplot as plt
+    from matplotlib.colors import get_named_colors_mapping
+    from celluloid import Camera
+    import numpy as np
+    import random
+    num_quadros = matriz.shape[1]
+    fps = num_quadros // segundos
+    # plt.figure(figsize=(16,10))
+    fig, ax = plt.subplots()
+    maximo = np.max(matriz_simulacoes)
+    minimo = np.min(matriz_simulacoes)
+    
+    ax.set_ylim(minimo* 0.8, maximo * 1.2)
+    ax.set_xlim(0,num_quadros)
+    
+    camera = Camera(fig)
+
+    cor = random.choices(list(get_named_colors_mapping().keys()),k=len(labels))
+    max_sim = [] 
+    min_sim = []
+    for i in range(matriz.shape[1]):
+        
+        # plt.legend()
+        s = matriz[:,i]
+        max_sim.append(np.max(s))
+        min_sim.append(np.min(s))
+        eixo_x = list(range(i+1))
+        # ax.axhline(np.max(s),c='green',ls="--")
+        # ax.axhline(np.min(s), c='blue',ls="--")    
+          
+        for j,linha in enumerate(matriz[:,:i+1]):
+            label = labels[j]
+            
+            ax.plot(eixo_x,linha, label=label,c=cor[j], linewidth=1)
+        if matriz.shape[0] > 1:    
+            ax.plot(eixo_x,max_sim,label='Valor máximo local',c='black',ls="--")
+            ax.plot(eixo_x,min_sim, label='Valor mínimo local',c='black',ls="--")
+        if maximo > minimo:
+            ax.axhline(maximo, label='Valor máximo', c='red',ls=":")
+            ax.axhline(minimo, label='Valor mínimo', c='red',ls=":")
+        camera.snap()
+
+    animation = camera.animate()
+    animation.save(titulo+".mp4", fps=fps)
+    plt.close(fig) 
 
 
 
@@ -125,25 +220,14 @@ def animar_matriz_media_cumulativa(matriz,titulo,segundos,labels,matriz_simulaco
         camera.snap()
 
     animation = camera.animate()
-    animation.save(titulo, fps=fps)
+    animation.save(titulo+".mp4", fps=fps)
+    plt.close(fig) 
 
 def simular(matriz_adjacencia, i, label):
     num_cores = max(colorir_grafo_greedy(matriz_adjacencia, i))
     return {label:num_cores}
 
 
-def realizar_n_simulacoes(matriz_adjacencia, i, label,num_simulacoes):
-    import multiprocessing as mp
-    from multiprocessing import Pool
-    args = [(matriz_adjacencia, i, label) for _ in range(num_simulacoes)]
-    n_cores = mp.cpu_count()
-    pool = Pool(n_cores)
-    resultado = pool.starmap_async(simular, args)
-    pool.close()
-    pool.join()
-    lista = [valor[label] for valor in resultado]
-    return {label:lista}
-    
 
 def gerar_dicionarios(matriz_adjacencia,num_simulacoes, labels):
     import numpy as np
@@ -174,15 +258,6 @@ def gerar_dicionarios(matriz_adjacencia,num_simulacoes, labels):
         for label in labels:
             dict_resultados_final[label].append(s[label])
 
-    # saida = dict([(label,[]) for label in labels])
-    # for _ in range(num_simulacoes):
-    #     for i,label in enumerate(labels):
-    #         num_cores = max(colorir_grafo_greedy(matriz_adjacencia, i))
-    #         saida[label].append(num_cores)
-    # matriz_media_acumulativa = 
-    # dict_max = dict([(label, np.max(lista)) for label, lista in dict_resultados_final.items()])
-    # dict_min = dict([(label, np.min(lista)) for label, lista in dict_resultados_final.items()])
-    # dict_media = dict([(label, np.mean(lista)) for label, lista in dict_resultados_final.items()])
     dict_media_acumulativa = dict([(label, [np.mean(lista[:i+1]) for i,_ in enumerate(lista)]) for label, lista in dict_resultados_final.items()])
     matriz_simulacoes = np.stack(list(dict_resultados_final.values()))
     # matriz_media_acumulativa = np.stack([])

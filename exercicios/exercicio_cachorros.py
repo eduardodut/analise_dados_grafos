@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy,graph_to_png,animar_matriz_media_cumulativa,gerar_dicionarios
+from funcoes_coloracao import colorir_grafo_greedy,graph_to_png,animar_matriz_media_cumulativa,gerar_dicionarios,graph_to_mp4
 import networkx as nx
 import matplotlib
 # há conflito
@@ -40,9 +40,11 @@ if __name__ == "__main__":
                  lista_labels=ind_cachorros)
 
     num_simulacoes = 200
-
+    
     matriz_adjacencia = matriz_adjacencia_cachorros.values
     
+    graph_to_mp4(matriz_adjacencia, 'exercicios/grafo_cachorros',num_quadros=100,tempo_segundos=5, lista_labels=ind_cachorros)
+
     matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(matriz_adjacencia, num_simulacoes, ind_cachorros)
 
-    animar_matriz_media_cumulativa(matriz_media_acumulativa,'exercicios/cachorros.gif',5,ind_cachorros,matriz_simulacoes)
+    animar_matriz_media_cumulativa(matriz_media_acumulativa,'exercicios/cachorros',5,ind_cachorros,matriz_simulacoes)

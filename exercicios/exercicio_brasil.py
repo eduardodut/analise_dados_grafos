@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_media_cumulativa, gerar_dicionarios
+from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_media_cumulativa, gerar_dicionarios,graph_to_mp4
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
                     'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
@@ -64,6 +64,7 @@ if __name__ == "__main__":
     graph_to_png(matriz_adjacencia.values,
                  'exercicios/grafo_Brasil.png',
                  estados)
+    graph_to_mp4(matriz_adjacencia.values, 'exercicios/grafo_Brasil',num_quadros=100,tempo_segundos=5, lista_labels=estados)
     num_simulacoes = 150
 
     matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(
@@ -75,49 +76,51 @@ if __name__ == "__main__":
     args = []
 
     args = [(matriz_media_acumulativa[i, :].reshape(1, -1),
-             f'exercicios/gifs_por_estado/{estado}.gif',
+             f'exercicios/gifs_por_estado/{estado}',
              segundos,
              [estado],
              matriz_simulacoes[i, :].reshape(1, -1)) for i, estado in enumerate(estados)]
     args.append((matriz_media_acumulativa,
-                 'exercicios/Brasil.gif',
+                 'exercicios/Brasil',
                  segundos,
                  estados,
                  matriz_simulacoes))
     # animar_matriz_media_cumulativa(matriz_media_acumulativa, 
-    #                                'exercicios/Brasil.gif', 
+    #                                'exercicios/Brasil', 
     #                                 segundos, 
     #                                 estados, 
     #                                 matriz_simulacoes)
     # estado = 'TO'
     # i = np.where(estados == estado)
     # animar_matriz_media_cumulativa(matriz_media_acumulativa[i, :].reshape(1, -1),
-    #                               f'exercicios/gifs_por_estado/{estado}.gif',
+    #                               f'exercicios/gifs_por_estado/{estado}',
     #                               segundos,
     #                               [estados[i]],
     #                               matriz_simulacoes[i, :].reshape(1, -1))
+    for arg in args:
+        a0,a1,a2,a3,a4 = arg
+        animar_matriz_media_cumulativa(a0,a1,a2,a3,a4)
+    # n_cores=mp.cpu_count()
 
-    n_cores=mp.cpu_count()
-
-    pool=Pool(n_cores)
+    # pool=Pool(n_cores)
      
-    pool.starmap_async(animar_matriz_media_cumulativa, args[0:12])
+    # pool.starmap_async(animar_matriz_media_cumulativa, args[0:12])
 
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
 
-    pool=Pool(n_cores)
+    # pool=Pool(n_cores)
      
-    pool.starmap_async(animar_matriz_media_cumulativa, args[12:25])
+    # pool.starmap_async(animar_matriz_media_cumulativa, args[12:25])
 
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
 
-    pool=Pool(n_cores)
+    # pool=Pool(n_cores)
      
-    pool.starmap_async(animar_matriz_media_cumulativa, args[25:])
+    # pool.starmap_async(animar_matriz_media_cumulativa, args[25:])
 
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
 
    
