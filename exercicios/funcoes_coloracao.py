@@ -1,6 +1,7 @@
 
 def random_colors(n):
     import random
+    random.seed()
     saida = []
     for i in range(n):
         r = random.randint(0, 255)
@@ -14,6 +15,7 @@ def random_colors(n):
 def colorir_grafo_greedy(matriz_adjacencia, ponto_partida):
     import numpy as np
     import random
+    random.seed()
     lista_cores_utilizadas = np.zeros_like(range(matriz_adjacencia.shape[0]))
 
     def colorir(ponto_partida):
@@ -45,6 +47,7 @@ def colorir_grafo_greedy(matriz_adjacencia, ponto_partida):
 
 def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[]):
     import random
+    random.seed()
     import networkx as nx
     import matplotlib
     matplotlib.use("Agg")
@@ -75,3 +78,56 @@ def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[]):
     f.savefig(nome_arquivo)
 
     print()
+
+
+def animar_matriz_media_cumulativa(matriz,titulo,fps,labels):
+    from matplotlib import pyplot as plt
+    from matplotlib.colors import get_named_colors_mapping
+    from celluloid import Camera
+    import numpy as np
+    import random
+    
+    # plt.figure(figsize=(16,10))
+    fig, ax = plt.subplots()
+    
+    minimo = np.min(matriz) 
+    maximo = np.max(matriz)
+    
+    ax.set_ylim(minimo* 0.8, maximo * 1.2)
+    ax.set_xlim(0, matriz.shape[1])
+    
+    camera = Camera(fig)
+
+    cor = random.choices(list(get_named_colors_mapping().keys()),k=len(labels))
+    for i in range(matriz.shape[1]):
+        if maximo > minimo:
+            ax.axhline(maximo, label='Valor máximo', c='gray',ls=":")
+            ax.axhline(minimo, label='Valor mínimo', c='gray',ls=":")
+        # plt.legend()
+        for j,linha in enumerate(matriz):
+            label = labels[j]
+            
+            ax.plot(list(range(i+1)),linha[:i+1], label=label,c=cor[j])
+            # plt.legend(loc='upper left')
+        camera.snap()
+
+    animation = camera.animate()
+    animation.save(titulo, writer='PillowWriter', fps=fps)
+
+
+def gerar_dicionarios(matriz_adjacencia,num_simulacoes, labels):
+    import numpy as np
+    dict_no = dict([(label,[]) for label in labels])
+    for _ in range(num_simulacoes):
+        for i,label in enumerate(labels):
+            num_cores = max(colorir_grafo_greedy(matriz_adjacencia, i))
+            dict_no[label].append(num_cores)
+    
+    dict_max = dict([(label, np.max(lista)) for label, lista in dict_no.items()])
+    dict_min = dict([(label, np.min(lista)) for label, lista in dict_no.items()])
+    dict_media = dict([(label, np.mean(lista)) for label, lista in dict_no.items()])
+    dict_media_acumulativa = dict([(label, [np.mean(lista[:i+1]) for i,_ in enumerate(lista)]) for label, lista in dict_no.items()])
+    return dict_max, dict_min, dict_media, dict_media_acumulativa
+
+
+

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy,graph_to_png
+from funcoes_coloracao import colorir_grafo_greedy,graph_to_png,animar_matriz_media_cumulativa,gerar_dicionarios
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
            'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
@@ -53,16 +53,17 @@ m_aux = matriz_adjacencia
 p = 1
 
 if __name__ == "__main__":
+    import random
+    random.seed()
     graph_to_png(matriz_adjacencia.values,
-                 'grafo_Brasil.png',
+                 'exercicios/grafo_Brasil.png',
                   estados)
-    num_simulacoes =  200   
-    dict_no = dict()
-    for i,estado in enumerate(estados):
-        lista = []
-        for _ in range(num_simulacoes):
-            lista.append(max(colorir_grafo_greedy(matriz_adjacencia.values, i)))
-        dict_no[estado] = np.mean(lista)
+    num_simulacoes =  200
 
-    import pprint
-    pprint.pprint(dict_no)
+    dict_max, dict_min, dict_media, dict_media_acumulativa = gerar_dicionarios(matriz_adjacencia.values, num_simulacoes, estados)
+    
+    matriz_media_acumulativa = pd.DataFrame(dict_media_acumulativa).transpose().values
+    
+    animar_matriz_media_cumulativa(matriz_media_acumulativa[:,:200],'exercicios/gif_Brasil.gif',40,estados)
+
+    animar_matriz_media_cumulativa(matriz_media_acumulativa[0,:200].reshape(1,-1),'exercicios/gif_AC.gif',40,['AC'])
