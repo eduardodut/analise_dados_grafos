@@ -39,12 +39,16 @@ if __name__ == "__main__":
                  'exercicios/grafo_cachorro.png',
                  lista_labels=ind_cachorros)
 
-    num_simulacoes = 100
+    num_simulacoes = 200
 
     matriz_adjacencia = matriz_adjacencia_cachorros.values
-
-    dict_max, dict_min, dict_media, dict_media_acumulativa = gerar_dicionarios(matriz_adjacencia, num_simulacoes, ind_cachorros)
     
+    matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(matriz_adjacencia, num_simulacoes, ind_cachorros)
+
+    maximo = np.max(list(dict_max.values()))
+    
+    minimo = np.min(list(dict_min.values()))
+
     matriz_media_acumulativa = pd.DataFrame(dict_media_acumulativa).transpose().values
     
-    animar_matriz_media_cumulativa(matriz_media_acumulativa,'exercicios/gif_cachorros.gif',40,ind_cachorros)
+    animar_matriz_media_cumulativa(matriz_media_acumulativa,'exercicios/cachorros.gif',5,ind_cachorros,maximo,minimo)

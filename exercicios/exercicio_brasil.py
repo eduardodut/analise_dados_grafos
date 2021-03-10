@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy,graph_to_png,animar_matriz_media_cumulativa,gerar_dicionarios
+from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_media_cumulativa, gerar_dicionarios
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
-           'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
+                    'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
 dict_vizinhanca = {'AC': ["AM", "RO"],
                    'AL': ['PE', "SE", "BA"],
                    'AM': ['AC', "RR", "RO", "MT", "PA"],
@@ -32,38 +32,78 @@ dict_vizinhanca = {'AC': ["AM", "RO"],
                    "SP": ["MG", "RJ", "PR", "MS"],
                    "TO": ["MA", "PI", "BA", "GO", "MT", "PA"]}
 matriz_adjacencia = []
-args_pandas = {'index':estados, 'columns':estados}
-to_pandas = lambda x: pd.DataFrame(x,**args_pandas)
+args_pandas = {'index': estados, 'columns': estados}
+def to_pandas(x): return pd.DataFrame(x, **args_pandas)
 
-for chave,lista in dict_vizinhanca.items():
+
+for chave, lista in dict_vizinhanca.items():
     linha = [int(sigla in lista) for sigla in estados]
     matriz_adjacencia.append(linha)
 
 matriz_adjacencia = to_pandas(matriz_adjacencia)
 
 # print(matriz_adjacencia)
-dict_graus = dict([(chave,len(lista)) for chave,lista in dict_vizinhanca.items()])
+dict_graus = dict([(chave, len(lista))
+                   for chave, lista in dict_vizinhanca.items()])
 
 d = np.diag(list(dict_graus.values()))
 lista_qtd_vizinhos = list(dict_graus.values())
 # print(lista_qtd_vizinhos == np.max(lista_qtd_vizinhos))
-estado_com_menos_vizinhos = estados[lista_qtd_vizinhos == np.min(lista_qtd_vizinhos)]
-estado_com_mais_vizinhos = estados[lista_qtd_vizinhos == np.max(lista_qtd_vizinhos)]
+estado_com_menos_vizinhos = estados[lista_qtd_vizinhos == np.min(
+    lista_qtd_vizinhos)]
+estado_com_mais_vizinhos = estados[lista_qtd_vizinhos == np.max(
+    lista_qtd_vizinhos)]
 m_aux = matriz_adjacencia
 p = 1
 
 if __name__ == "__main__":
     import random
     random.seed()
+    import multiprocessing as mp
+    from multiprocessing import Pool
     graph_to_png(matriz_adjacencia.values,
                  'exercicios/grafo_Brasil.png',
-                  estados)
-    num_simulacoes =  200
+                 estados)
+    num_simulacoes = 100
 
-    dict_max, dict_min, dict_media, dict_media_acumulativa = gerar_dicionarios(matriz_adjacencia.values, num_simulacoes, estados)
-    
-    matriz_media_acumulativa = pd.DataFrame(dict_media_acumulativa).transpose().values
-    
-    animar_matriz_media_cumulativa(matriz_media_acumulativa[:,:200],'exercicios/gif_Brasil.gif',40,estados)
+    matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(
+        matriz_adjacencia.values, num_simulacoes, estados)
 
-    animar_matriz_media_cumulativa(matriz_media_acumulativa[0,:200].reshape(1,-1),'exercicios/gif_AC.gif',40,['AC'])
+    segundos = 5
+    # animar_matriz_media_cumulativa(
+    #     matriz_media_acumulativa[:, :200], 'exercicios/Brasil.gif', 40, estados, maximo, minimo)
+    args = []
+
+    args = [(matriz_media_acumulativa[i, :].reshape(1, -1),
+             f'exercicios/gifs_por_estado/{estado}.gif',
+             segundos,
+             [estado],
+             matriz_simulacoes[i, :].reshape(1, -1)) for i, estado in enumerate(estados)]
+    args.append((matriz_media_acumulativa,
+                 'exercicios/Brasil.gif',
+                 segundos,
+                 estados,
+                 matriz_simulacoes))
+    # animar_matriz_media_cumulativa(matriz_media_acumulativa, 
+    #                                'exercicios/Brasil.gif', 
+    #                                 segundos, 
+    #                                 estados, 
+    #                                 matriz_simulacoes)
+    # estado = 'TO'
+    # i = np.where(estados == estado)
+    # animar_matriz_media_cumulativa(matriz_media_acumulativa[i, :].reshape(1, -1),
+    #                               f'exercicios/gifs_por_estado/{estado}.gif',
+    #                               segundos,
+    #                               [estados[i]],
+    #                               matriz_simulacoes[i, :].reshape(1, -1))
+
+    n_cores=mp.cpu_count()
+
+    pool=Pool(n_cores)
+
+    pool.starmap_async(animar_matriz_media_cumulativa, args)
+
+    pool.close()
+    pool.join()
+
+   
