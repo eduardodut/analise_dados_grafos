@@ -64,7 +64,7 @@ if __name__ == "__main__":
     graph_to_png(matriz_adjacencia.values,
                  'exercicios/grafo_Brasil.png',
                  estados)
-    num_simulacoes = 100
+    num_simulacoes = 150
 
     matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(
         matriz_adjacencia.values, num_simulacoes, estados)
@@ -100,8 +100,22 @@ if __name__ == "__main__":
     n_cores=mp.cpu_count()
 
     pool=Pool(n_cores)
+     
+    pool.starmap_async(animar_matriz_media_cumulativa, args[0:12])
 
-    pool.starmap_async(animar_matriz_media_cumulativa, args)
+    pool.close()
+    pool.join()
+
+    pool=Pool(n_cores)
+     
+    pool.starmap_async(animar_matriz_media_cumulativa, args[12:25])
+
+    pool.close()
+    pool.join()
+
+    pool=Pool(n_cores)
+     
+    pool.starmap_async(animar_matriz_media_cumulativa, args[25:])
 
     pool.close()
     pool.join()

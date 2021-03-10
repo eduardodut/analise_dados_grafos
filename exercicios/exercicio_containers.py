@@ -43,13 +43,8 @@ if __name__ == "__main__":
 
     matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(
         matriz_adjacencia, num_simulacoes, ind_containers)
-    maximo = np.max(list(dict_max.values()))
-
-    minimo = np.min(list(dict_min.values()))
-    matriz_media_acumulativa = pd.DataFrame(
-        dict_media_acumulativa).transpose().values
-
+    
     animar_matriz_media_cumulativa(
-        matriz_media_acumulativa, 'exercicios/containers.gif', 5, ind_containers, maximo, minimo)
+        matriz_media_acumulativa, 'exercicios/containers.gif', 5, ind_containers, matriz_simulacoes)
 
     # animar_matriz_media_cumulativa(matriz_media_acumulativa[0,:200].reshape(1,-1),'exercicios/AC.gif',40,['AC'])
