@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_media_cumulativa, gerar_dicionarios,graph_to_mp4
+from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_simulacoes, gerar_simulacoes, graph_to_mp4,aplicar_funcao_matriz_simulacoes
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
                     'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
@@ -61,66 +61,47 @@ if __name__ == "__main__":
     random.seed()
     import multiprocessing as mp
     from multiprocessing import Pool
+    import os
+    os.makedirs('exercicios/Brasil/resultado_por_estado',exist_ok=True)
+
     graph_to_png(matriz_adjacencia.values,
-                 'exercicios/grafo_Brasil.png',
+                 'exercicios/Brasil/grafo_Brasil.png',
                  estados)
-    graph_to_mp4(matriz_adjacencia.values, 'exercicios/grafo_Brasil',num_quadros=100,tempo_segundos=5, lista_labels=estados)
+    graph_to_mp4(matriz_adjacencia.values, 'exercicios/Brasil/animacao_grafo_Brasil',
+                 num_quadros=100, tempo_segundos=5, lista_labels=estados)
     num_simulacoes = 150
 
-    matriz_simulacoes, matriz_media_acumulativa = gerar_dicionarios(
-        matriz_adjacencia.values, num_simulacoes, estados)
+    matriz_simulacoes = gerar_simulacoes(
+        matriz_adjacencia.values, num_simulacoes, estados,colorir_grafo_greedy)
 
     segundos = 5
-    # animar_matriz_media_cumulativa(
+    dict_matrizes = {'min': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.min),
+                     'max': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.max),
+                     'media': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.mean)}
+    # animar_matriz_simulacoes(
     #     matriz_media_acumulativa[:, :200], 'exercicios/Brasil.gif', 40, estados, maximo, minimo)
     args = []
-
-    args = [(matriz_media_acumulativa[i, :].reshape(1, -1),
-             f'exercicios/gifs_por_estado/{estado}',
-             segundos,
-             [estado],
-             matriz_simulacoes[i, :].reshape(1, -1)) for i, estado in enumerate(estados)]
-    args.append((matriz_media_acumulativa,
-                 'exercicios/Brasil',
+    for chave, matriz in dict_matrizes.items():
+        for i, estado in enumerate(estados):
+            arg = (matriz[i, :].reshape(1, -1),
+                   f'exercicios/Brasil/resultado_por_estado/{chave}_{estado}',
+                   segundos,
+                   [estado],
+                   matriz_simulacoes[i, :].reshape(1, -1))
+            args.append(arg)
+        args.append((matriz,
+                 f'exercicios/Brasil/{chave}_Brasil',
                  segundos,
                  estados,
                  matriz_simulacoes))
-    # animar_matriz_media_cumulativa(matriz_media_acumulativa, 
-    #                                'exercicios/Brasil', 
-    #                                 segundos, 
-    #                                 estados, 
-    #                                 matriz_simulacoes)
-    # estado = 'TO'
-    # i = np.where(estados == estado)
-    # animar_matriz_media_cumulativa(matriz_media_acumulativa[i, :].reshape(1, -1),
-    #                               f'exercicios/gifs_por_estado/{estado}',
-    #                               segundos,
-    #                               [estados[i]],
-    #                               matriz_simulacoes[i, :].reshape(1, -1))
-    for arg in args:
-        a0,a1,a2,a3,a4 = arg
-        animar_matriz_media_cumulativa(a0,a1,a2,a3,a4)
-    # n_cores=mp.cpu_count()
+    
+    n_cores=mp.cpu_count()
+    splitted_args = np.split(np.array(args),len(args)//n_cores)
+    for conjunto_args in splitted_args:
 
-    # pool=Pool(n_cores)
-     
-    # pool.starmap_async(animar_matriz_media_cumulativa, args[0:12])
+        pool=Pool(n_cores)
 
-    # pool.close()
-    # pool.join()
+        pool.starmap_async(animar_matriz_simulacoes, conjunto_args.tolist())
 
-    # pool=Pool(n_cores)
-     
-    # pool.starmap_async(animar_matriz_media_cumulativa, args[12:25])
-
-    # pool.close()
-    # pool.join()
-
-    # pool=Pool(n_cores)
-     
-    # pool.starmap_async(animar_matriz_media_cumulativa, args[25:])
-
-    # pool.close()
-    # pool.join()
-
-   
+        pool.close()
+        pool.join()

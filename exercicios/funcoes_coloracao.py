@@ -176,7 +176,7 @@ def animar_grafo(matriz,titulo,segundos,labels):
 
 
 
-def animar_matriz_media_cumulativa(matriz,titulo,segundos,labels,matriz_simulacoes):
+def animar_matriz_simulacoes(matriz,titulo,segundos,labels,matriz_simulacoes):
     from matplotlib import pyplot as plt
     from matplotlib.colors import get_named_colors_mapping
     from celluloid import Camera
@@ -223,19 +223,19 @@ def animar_matriz_media_cumulativa(matriz,titulo,segundos,labels,matriz_simulaco
     animation.save(titulo+".mp4", fps=fps)
     plt.close(fig) 
 
-def simular(matriz_adjacencia, i, label):
-    num_cores = max(colorir_grafo_greedy(matriz_adjacencia, i))
+def simular(matriz_adjacencia, i, label,funcao_coloracao):
+    num_cores = max(funcao_coloracao(matriz_adjacencia, i))
     return {label:num_cores}
 
 
 
-def gerar_dicionarios(matriz_adjacencia,num_simulacoes, labels):
+def gerar_simulacoes(matriz_adjacencia,num_simulacoes, labels, funcao_coloracao):
     import numpy as np
     import multiprocessing as mp
     import pandas as pd
     from multiprocessing import Pool
 
-    args = [(matriz_adjacencia,i,label) for i,label in enumerate(labels)]
+    args = [(matriz_adjacencia,i,label,funcao_coloracao) for i,label in enumerate(labels)]
     
     n_cores = mp.cpu_count()
     
@@ -258,13 +258,31 @@ def gerar_dicionarios(matriz_adjacencia,num_simulacoes, labels):
         for label in labels:
             dict_resultados_final[label].append(s[label])
 
-    dict_media_acumulativa = dict([(label, [np.mean(lista[:i+1]) for i,_ in enumerate(lista)]) for label, lista in dict_resultados_final.items()])
+    # dict_media_acumulativa = dict([(label, [np.mean(lista[:i+1]) for i,_ in enumerate(lista)]) for label, lista in dict_resultados_final.items()])
     matriz_simulacoes = np.stack(list(dict_resultados_final.values()))
     # matriz_media_acumulativa = np.stack([])
-    matriz_media_acumulativa = np.stack(list(dict_media_acumulativa.values()))
+    # matriz_media_acumulativa = np.stack(list(dict_media_acumulativa.values()))
  
 
-    return matriz_simulacoes, matriz_media_acumulativa
+    return matriz_simulacoes
 
+def aplicar_funcao_matriz_simulacoes(matriz_simulacoes,funcao,**kargs):
+    import numpy as np
+    matriz_simulacoes = matriz_simulacoes.astype(float)
+    saida = np.zeros_like(matriz_simulacoes)
+    for j in range(matriz_simulacoes.shape[1]):
+        saida[:,j] =funcao(matriz_simulacoes[:,:j+1],axis=1,**kargs)
+    return saida
 
+# matriz_adjacencia_peixes = np.array([[0, 1, 1, 1, 1, 1, 1],
+#                                      [1, 0, 0, 0, 0, 1, 1],
+#                                      [1, 0, 0, 0, 0, 1, 0],
+#                                      [1, 0, 0, 0, 0, 1, 1],
+#                                      [1, 0, 0, 0, 0, 0, 0],
+#                                      [1, 1, 1, 1, 0, 0, 0],
+#                                      [1, 1, 0, 1, 0, 0, 0]])
+# j=1
+# aplicar_funcao_matriz_simulacoes(matriz_adjacencia_peixes,np.sum)
+# saida = aplicar_funcao_matriz_simulacoes(matriz_adjacencia_peixes,np.sum)
 
+# print(saida)
