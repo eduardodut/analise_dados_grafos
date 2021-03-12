@@ -82,6 +82,7 @@ if __name__ == "__main__":
         coloracao_para_png(matriz_adjacencia,
                            obs_max_cores.sequencia_vetor_cores[-1],
                            caminho+'/grafo_'+nome_exercicio,
+                           labels
                            )
     else:  
         sequencia_coloracao_para_gif(matriz_adjacencia, 
@@ -93,6 +94,7 @@ if __name__ == "__main__":
         coloracao_para_png(matriz_adjacencia,
                            obs_min_cores.sequencia_vetor_cores[-1],
                            caminho+'/grafo_min_cores_'+nome_exercicio,
+                           labels
                            )
 
         sequencia_coloracao_para_gif(matriz_adjacencia, 
@@ -104,6 +106,7 @@ if __name__ == "__main__":
         coloracao_para_png(matriz_adjacencia,
                            obs_max_cores.sequencia_vetor_cores[-1],
                            caminho+'/grafo_max_cores_'+nome_exercicio,
+                           labels
                            )
 
     graph_to_gif(matriz_adjacencia, caminho+'/combinacoes_cores_grafo_'+nome_exercicio,
