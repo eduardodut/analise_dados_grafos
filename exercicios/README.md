@@ -30,7 +30,7 @@
 ### Mínimo de containers: 4
 |                    Por etapas                     |                Final                 |
 | :-----------------------------------------------: | :----------------------------------: |
-| ![](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_Containers.png) |
+| ![](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_containers.png) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
