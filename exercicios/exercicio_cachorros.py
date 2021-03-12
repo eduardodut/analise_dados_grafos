@@ -1,17 +1,17 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_simulacoes, gerar_simulacoes, graph_to_mp4,aplicar_funcao_matriz_simulacoes
+from funcoes_coloracao import *
 import networkx as nx
 import matplotlib
 # há conflito
 
-ind_cachorros = np.array(['A', 'B', 'C', 'D', 'E', 'F'])
-qtd = ind_cachorros.shape[0]
+labels = np.array(['A', 'B', 'C', 'D', 'E', 'F'])
+qtd = labels.shape[0]
 matriz_adjacencia_cachorros = np.zeros(shape=(qtd, qtd), dtype=int)
 dict_cachorro_ind = dict([(letra, indice)
-                          for indice, letra in enumerate(ind_cachorros)])
+                          for indice, letra in enumerate(labels)])
 dict_ind_cachorro = dict([(indice, letra)
-                          for indice, letra in enumerate(ind_cachorros)])
+                          for indice, letra in enumerate(labels)])
 dict_adjacencia = {'A': ['C', 'D', 'E'],
                    'B': ['F'],
                    'E': ['D', 'F']}
@@ -28,33 +28,69 @@ for c1, lista_c2 in dict_adjacencia.items():
 matriz_adjacencia_cachorros += matriz_adjacencia_cachorros.T
 
 matriz_adjacencia_cachorros = pd.DataFrame(
-    matriz_adjacencia_cachorros, index=ind_cachorros, columns=ind_cachorros)
+    matriz_adjacencia_cachorros, index=labels, columns=labels)
 
 
 if __name__ == "__main__":
     import random
     import os
-    os.makedirs('exercicios/Cachorros',exist_ok=True)
-    random.seed()
+    nome_exercicio = 'Cachorros'
+    caminho = 'exercicios/'+nome_exercicio
 
-    graph_to_png(matriz_adjacencia_cachorros.values,
-                 'exercicios/Cachorros/grafo_cachorro.png',
-                 lista_labels=ind_cachorros)
-
-    num_simulacoes = 200
-    
+    os.makedirs(caminho, exist_ok=True)
     matriz_adjacencia = matriz_adjacencia_cachorros.values
-    
-    graph_to_mp4(matriz_adjacencia, 'exercicios/Cachorros/animacao_grafo_cachorros',num_quadros=100,tempo_segundos=5, lista_labels=ind_cachorros)
 
-    
+    observadores = simular(matriz_adjacencia, colorir_grafo, simulacoes_por_no = 1000)
+    obs_max_cores, obs_min_cores = get_max_min_cores(observadores)
+    max_cores = max(obs_max_cores.sequencia_vetor_cores[-1])
+    min_cores = max(obs_min_cores.sequencia_vetor_cores[-1])
+    if max_cores == min_cores:
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_min_cores, 
+                                    caminho+'/animacao_coloracao_'+ nome_exercicio, 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_max_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_'+nome_exercicio,
+                           labels
+                           )
+    else:  
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_min_cores, 
+                                    caminho+f'/animacao_coloracao_{nome_exercicio}_min_cores', 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_min_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_min_cores_'+nome_exercicio,
+                           labels
+                           )
 
-    segundos=5
-    matriz_simulacoes = gerar_simulacoes(matriz_adjacencia, num_simulacoes, ind_cachorros,colorir_grafo_greedy)
-    
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_max_cores, 
+                                     caminho+f'/animacao_coloracao_{nome_exercicio}_max_cores', 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_max_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_max_cores_'+nome_exercicio,
+                           labels
+                           )
+
+    graph_to_gif(matriz_adjacencia, caminho+'/combinacoes_cores_grafo_'+nome_exercicio,
+                 num_quadros=100, tempo_segundos=5, lista_labels=labels)
+    segundos = 5
+
+    matriz_simulacoes = get_matriz_simulacao(len(labels), observadores)[:,:200]
+
     dict_matrizes = {'min': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.min),
                      'max': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.max),
                      'media': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.mean)}
-    
+
     for chave, matriz in dict_matrizes.items():
-        animar_matriz_simulacoes(matriz,f'exercicios/Cachorros/{chave}_cachorros',segundos,ind_cachorros,matriz_simulacoes)
+        animar_matriz_simulacoes(
+            matriz, caminho+f'/{chave}_{nome_exercicio}', segundos, labels, matriz_simulacoes)

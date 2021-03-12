@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from funcoes_coloracao import colorir_grafo_greedy, graph_to_png, animar_matriz_simulacoes, gerar_simulacoes, graph_to_mp4,aplicar_funcao_matriz_simulacoes
+from funcoes_coloracao import *
 
 estados = np.array(['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
                     'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'])
@@ -62,37 +62,74 @@ if __name__ == "__main__":
     import multiprocessing as mp
     from multiprocessing import Pool
     import os
-    os.makedirs('exercicios/Brasil/resultado_por_estado',exist_ok=True)
+    nome_exercicio = 'Brasil'
+    caminho = 'exercicios/'+nome_exercicio
+    os.makedirs(caminho + '/resultado_por_estado',exist_ok=True)
+    matriz_adjacencia = matriz_adjacencia.values
+    labels = estados
 
-    graph_to_png(matriz_adjacencia.values,
-                 'exercicios/Brasil/grafo_Brasil.png',
-                 estados)
-    graph_to_mp4(matriz_adjacencia.values, 'exercicios/Brasil/animacao_grafo_Brasil',
-                 num_quadros=100, tempo_segundos=5, lista_labels=estados)
-    num_simulacoes = 150
+    observadores = simular(matriz_adjacencia, colorir_grafo, simulacoes_por_no = 1000)
+    obs_max_cores, obs_min_cores = get_max_min_cores(observadores)
+    max_cores = max(obs_max_cores.sequencia_vetor_cores[-1])
+    min_cores = max(obs_min_cores.sequencia_vetor_cores[-1])
+    if max_cores == min_cores:
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_min_cores, 
+                                    caminho+'/animacao_coloracao_'+ nome_exercicio, 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_max_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_'+nome_exercicio,
+                           )
+    else:  
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_min_cores, 
+                                    caminho+f'/animacao_coloracao_{nome_exercicio}_min_cores', 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_min_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_min_cores_'+nome_exercicio,
+                           )
 
-    matriz_simulacoes = gerar_simulacoes(
-        matriz_adjacencia.values, num_simulacoes, estados,colorir_grafo_greedy)
+        sequencia_coloracao_para_gif(matriz_adjacencia, 
+                                    obs_max_cores, 
+                                     caminho+f'/animacao_coloracao_{nome_exercicio}_max_cores', 
+                                    lista_labels=labels, 
+                                    quadros_por_etapa = 2, 
+                                    segundos=5)
+        coloracao_para_png(matriz_adjacencia,
+                           obs_max_cores.sequencia_vetor_cores[-1],
+                           caminho+'/grafo_max_cores_'+nome_exercicio,
+                           )
+
+    graph_to_gif(matriz_adjacencia, caminho+'/combinacoes_cores_grafo_'+nome_exercicio,
+                 num_quadros=100, tempo_segundos=5, lista_labels=labels)
 
     segundos = 5
+
+    matriz_simulacoes = get_matriz_simulacao(len(labels), observadores)[:,:200]
+
     dict_matrizes = {'min': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.min),
                      'max': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.max),
                      'media': aplicar_funcao_matriz_simulacoes(matriz_simulacoes, np.mean)}
-    # animar_matriz_simulacoes(
-    #     matriz_media_acumulativa[:, :200], 'exercicios/Brasil.gif', 40, estados, maximo, minimo)
+
     args = []
     for chave, matriz in dict_matrizes.items():
-        for i, estado in enumerate(estados):
+        for i, estado in enumerate(labels):
             arg = (matriz[i, :].reshape(1, -1),
-                   f'exercicios/Brasil/resultado_por_estado/{chave}_{estado}',
+                   caminho + f'/resultado_por_estado/{chave}_{estado}',
                    segundos,
                    [estado],
                    matriz_simulacoes[i, :].reshape(1, -1))
             args.append(arg)
         args.append((matriz,
-                 f'exercicios/Brasil/{chave}_Brasil',
+                 caminho + f'/{chave}_'+nome_exercicio,
                  segundos,
-                 estados,
+                 labels,
                  matriz_simulacoes))
     
     n_cores=mp.cpu_count()

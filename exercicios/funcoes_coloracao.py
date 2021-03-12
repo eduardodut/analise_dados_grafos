@@ -1,18 +1,25 @@
-
-def random_colors(n):
-    import random
-    random.seed()
-    saida = []
-    for i in range(n):
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        b = random.randint(0, 255)
-        saida.append((r, g, b))
-
-    return saida
+import numpy as np
+CORES_UTILIZADAS = np.array(['k','b','r','c','m','g','y'])
+# ‘b’	blue
+# ‘g’	green
+# ‘r’	red
+# ‘c’	cyan
+# ‘m’	magenta
+# ‘y’	yellow
+# ‘k’	black
+# ‘w’	white
 
 
-def colorir_grafo_greedy(matriz_adjacencia, ponto_partida):
+ 
+
+class Observador:
+    def __init__(self):
+        self.sequencia_vetor_cores = []
+        pass
+    def atualizar(self, vetor_atualizado):
+        self.sequencia_vetor_cores.append(vetor_atualizado)
+
+def colorir_grafo(matriz_adjacencia, ponto_partida, vizinhos_aleatorios=True, observador=None):
     import numpy as np
     import random
     random.seed()
@@ -32,19 +39,56 @@ def colorir_grafo_greedy(matriz_adjacencia, ponto_partida):
             cor_selecionada = max(cores_vizinhos)+1
 
         lista_cores_utilizadas[ponto_partida] = cor_selecionada
+        
+        if observador != None:
+            observador.atualizar(np.array(lista_cores_utilizadas))
 
         vizinhos = [viz for viz in vizinhos if lista_cores_utilizadas[viz] == 0]
 
         if len(vizinhos) > 0:
-            random.shuffle(vizinhos)
+            if vizinhos_aleatorios:
+                random.shuffle(vizinhos)
             for viz in vizinhos:
                 colorir(viz)
-
+        
     colorir(ponto_partida)
 
-    return lista_cores_utilizadas
+    return np.array(lista_cores_utilizadas)
 
-def graph_to_mp4(matriz_adjacencia, titulo,num_quadros=10,tempo_segundos=5, lista_labels=[]):
+def _simular(matriz_adjacencia, funcao_coloracao, ponto_partida):
+    observador = Observador()
+    lista_cores = funcao_coloracao(matriz_adjacencia,ponto_partida,observador=observador)
+    return observador
+
+def simular(matriz_adjacencia, funcao_coloracao, simulacoes_por_no = 1000):
+    import multiprocessing as mp
+    from multiprocessing import Pool
+    n_cores = mp.cpu_count()
+    
+    pool = Pool(n_cores)
+    args = []
+    for i in range(simulacoes_por_no):
+        for p in range(matriz_adjacencia.shape[0]):
+            args.append((matriz_adjacencia, funcao_coloracao,p))
+
+    
+    observadores = pool.starmap(_simular, args)
+
+    pool.close()
+    pool.join()
+    return observadores
+    
+def get_max_min_cores(observadores):
+    lista_qtd_cores = np.array([max(observador.sequencia_vetor_cores[-1]) for observador in observadores])
+    argmax =  np.argmax(lista_qtd_cores)
+    argmin =  np.argmin(lista_qtd_cores)
+    return observadores[argmax],observadores[argmin]
+
+def get_matriz_simulacao(num_nos, observadores):
+    matriz = np.array(np.array([max(observador.sequencia_vetor_cores[-1]) for observador in observadores])).reshape(num_nos,-1)
+    return matriz
+
+def graph_to_gif(matriz_adjacencia, titulo,num_quadros=10,tempo_segundos=5, lista_labels=[]):
     import random
     random.seed()
     import networkx as nx
@@ -73,26 +117,62 @@ def graph_to_mp4(matriz_adjacencia, titulo,num_quadros=10,tempo_segundos=5, list
         
         if (cores_atribuidas == [] )| ( n % i == 0):
             ponto_partida = random.choice(range(len(labels)))
-            cores_atribuidas = colorir_grafo_greedy(matriz_adjacencia, ponto_partida)
-        cores = random_colors(max(cores_atribuidas))
-
-       
+            cores_atribuidas = colorir_grafo(matriz_adjacencia, ponto_partida)
+        cores = CORES_UTILIZADAS[cores_atribuidas]
         nx.draw(grafo,
                 pos,
                 ax=ax,
                 labels=dict_ind_label,
-                node_color=cores_atribuidas,
+                node_color=cores,
                 font_color='white',
                 with_labels=True)
         camera.snap()
 
     animation = camera.animate()
     fps = num_quadros//tempo_segundos
-    animation.save(titulo+".mp4", fps=fps)
+    animation.save(titulo+".gif", fps=fps)
     plt.close(fig) 
+def sequencia_coloracao_para_gif(matriz_adjacencia, observador, titulo, lista_labels=[], quadros_por_etapa: int = 2, segundos=5 ):
+    import networkx as nx
+    from matplotlib import pyplot as plt
+    from matplotlib.colors import get_named_colors_mapping
+    from celluloid import Camera
+    import matplotlib.pyplot as plt
 
+    grafo = nx.from_numpy_array(matriz_adjacencia)
+    labels = list(range(matriz_adjacencia.shape[0]))
+    if len(lista_labels) == len(labels):
+        labels = [lista_labels[l] for l in labels]
+    
+    dict_ind_label = dict([(indice, letra)
+                           for indice, letra in enumerate(labels)])
+    
+    fig, ax = plt.subplots()
+        
+    camera = Camera(fig)
+    pos = nx.circular_layout(grafo)
 
-def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[], ponto_partida = -1):
+    fps = (quadros_por_etapa * len(observador.sequencia_vetor_cores)) // segundos
+    cores_quadro_inicial = np.zeros(len(labels),dtype=int).reshape(1,-1)
+    sequencia = np.vstack([cores_quadro_inicial,observador.sequencia_vetor_cores])
+    for lista_cores in sequencia:
+        for _ in range(quadros_por_etapa):
+            nx.draw(grafo,
+                    pos,
+                    ax=ax,
+                    labels=dict_ind_label,
+                    node_color=CORES_UTILIZADAS[lista_cores],
+                    cmap=plt.get_cmap('Set2'),
+                    font_color='white',
+                    with_labels=True)
+            camera.snap()
+
+    animation = camera.animate()
+    animation.save(titulo+".gif", fps=fps)
+    plt.close(fig) 
+        
+
+def coloracao_para_png(matriz_adjacencia, cores, nome_arquivo, lista_labels=[]):
     import random
     random.seed()
     import networkx as nx
@@ -102,24 +182,21 @@ def graph_to_png(matriz_adjacencia, nome_arquivo, lista_labels=[], ponto_partida
 
     grafo = nx.from_numpy_array(matriz_adjacencia)
     labels = list(range(matriz_adjacencia.shape[0]))
-    if ponto_partida == -1:
-        ponto_partida = random.choice(labels)
-    cores_atribuidas = colorir_grafo_greedy(matriz_adjacencia, ponto_partida)
-    cores = random_colors(max(cores_atribuidas))
-
+    
+    cores = CORES_UTILIZADAS[cores]
+    
     if len(lista_labels) == len(labels):
         labels = [lista_labels[l] for l in labels]
     
     f = plt.figure()
     dict_ind_label = dict([(indice, letra)
                            for indice, letra in enumerate(labels)])
-    # pos = nx.spring_layout(grafo)
     pos = nx.circular_layout(grafo)
     nx.draw(grafo,
             pos,
             ax=f.add_subplot(111),
             labels=dict_ind_label,
-            node_color=cores_atribuidas,
+            node_color=cores,            
             font_color='white',
             with_labels=True)
     f.savefig(nome_arquivo)
@@ -171,7 +248,7 @@ def animar_grafo(matriz,titulo,segundos,labels):
         camera.snap()
 
     animation = camera.animate()
-    animation.save(titulo+".mp4", fps=fps)
+    animation.save(titulo+".gif", fps=fps)
     plt.close(fig) 
 
 
@@ -220,51 +297,8 @@ def animar_matriz_simulacoes(matriz,titulo,segundos,labels,matriz_simulacoes):
         camera.snap()
 
     animation = camera.animate()
-    animation.save(titulo+".mp4", fps=fps)
+    animation.save(titulo+".gif", fps=fps)
     plt.close(fig) 
-
-def simular(matriz_adjacencia, i, label,funcao_coloracao):
-    num_cores = max(funcao_coloracao(matriz_adjacencia, i))
-    return {label:num_cores}
-
-
-
-def gerar_simulacoes(matriz_adjacencia,num_simulacoes, labels, funcao_coloracao):
-    import numpy as np
-    import multiprocessing as mp
-    import pandas as pd
-    from multiprocessing import Pool
-
-    args = [(matriz_adjacencia,i,label,funcao_coloracao) for i,label in enumerate(labels)]
-    
-    n_cores = mp.cpu_count()
-    
-    pool = Pool(n_cores)
-    resultados = dict()
-    for i in range(num_simulacoes):
-        resultados[i] = pool.starmap(simular, args)
-
-    pool.close()
-    pool.join()
-    saida = []
-
-    for resultado in resultados.values():
-        dict_agregado = {}
-        for r in resultado:
-            dict_agregado = {**dict_agregado,**r}
-        saida.append(dict_agregado)
-    dict_resultados_final = dict([(label,[]) for label in labels])
-    for s in saida:
-        for label in labels:
-            dict_resultados_final[label].append(s[label])
-
-    # dict_media_acumulativa = dict([(label, [np.mean(lista[:i+1]) for i,_ in enumerate(lista)]) for label, lista in dict_resultados_final.items()])
-    matriz_simulacoes = np.stack(list(dict_resultados_final.values()))
-    # matriz_media_acumulativa = np.stack([])
-    # matriz_media_acumulativa = np.stack(list(dict_media_acumulativa.values()))
- 
-
-    return matriz_simulacoes
 
 def aplicar_funcao_matriz_simulacoes(matriz_simulacoes,funcao,**kargs):
     import numpy as np
@@ -273,16 +307,3 @@ def aplicar_funcao_matriz_simulacoes(matriz_simulacoes,funcao,**kargs):
     for j in range(matriz_simulacoes.shape[1]):
         saida[:,j] =funcao(matriz_simulacoes[:,:j+1],axis=1,**kargs)
     return saida
-
-# matriz_adjacencia_peixes = np.array([[0, 1, 1, 1, 1, 1, 1],
-#                                      [1, 0, 0, 0, 0, 1, 1],
-#                                      [1, 0, 0, 0, 0, 1, 0],
-#                                      [1, 0, 0, 0, 0, 1, 1],
-#                                      [1, 0, 0, 0, 0, 0, 0],
-#                                      [1, 1, 1, 1, 0, 0, 0],
-#                                      [1, 1, 0, 1, 0, 0, 0]])
-# j=1
-# aplicar_funcao_matriz_simulacoes(matriz_adjacencia_peixes,np.sum)
-# saida = aplicar_funcao_matriz_simulacoes(matriz_adjacencia_peixes,np.sum)
-
-# print(saida)
