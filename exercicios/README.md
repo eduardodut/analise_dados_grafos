@@ -29,16 +29,21 @@
 
 ### Mínimo de containers: 4
 
+<!-- <p float="left">
+  <img src="Containers/animacao_coloracao_Containers.gif"/>
+  <img src="Containers/grafo_Containers.png"/> 
+</p> -->
+
 |                    Por etapas                     |                Final                 |
 | :-----------------------------------------------: | :----------------------------------: |
-| ![](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_Containers.png) |
+| ![t](Containers/animacao_coloracao_Containers.gif) | ![t](Containers/grafo_Containers.png) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
 ### Mínimo de aquários: 3
 |                     Por etapas                      |                 Final                  |
 | :-------------------------------------------------: | :------------------------------------: |
-| ![](Peixes/animacao_coloracao_Peixes_min_cores.gif) | ![](Peixes/grafo_min_cores_Peixes.png) |
+| ![t](Peixes/animacao_coloracao_Peixes_min_cores.gif) | ![t](Peixes/grafo_min_cores_Peixes.png) |
 
 ### Máximo de aquários: 4
 |                     Por etapas                      |                 Final                  |
