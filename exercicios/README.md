@@ -25,18 +25,15 @@
 |                   Por etapas                    |               Final                |
 | :---------------------------------------------: | :--------------------------------: |
 | ![](Cachorros/animacao_coloracao_Cachorros.gif) | ![](Cachorros/grafo_Cachorros.png) |
+
 ## Problema dos containers <a name = "containers"></a>
 
 ### Mínimo de containers: 4
 
-<!-- <p float="left">
-  <img src="Containers/animacao_coloracao_Containers.gif"/>
-  <img src="Containers/grafo_Containers.png"/> 
-</p> -->
 
 |                    Por etapas                     |                Final                 |
 | :-----------------------------------------------: | :----------------------------------: |
-| ![t](Containers/animacao_coloracao_Containers.gif) | ![t](Containers/grafo_Containers.png) |
+| ![t](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_Containers.png) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
