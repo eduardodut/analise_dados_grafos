@@ -30,31 +30,31 @@
 ### Mínimo de containers: 4
 |                    Por etapas                     |                Final                 |
 | :-----------------------------------------------: | :----------------------------------: |
-| ![t](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_containers.png) |
+| ![](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_containers.png) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
 ### Mínimo de aquários: 3
 |                     Por etapas                      |                 Final                  |
 | :-------------------------------------------------: | :------------------------------------: |
-| ![t](Peixes/animacao_coloracao_peixes_min_cores.gif) | ![t](Peixes/grafo_min_cores_Peixes.png) |
+| ![](Peixes/animacao_coloracao_peixes_min_cores.gif) | ![](Peixes/grafo_min_cores_peixes.png) |
 
 ### Máximo de aquários: 4
 |                     Por etapas                      |                 Final                  |
 | :-------------------------------------------------: | :------------------------------------: |
-| ![t](Peixes/animacao_coloracao_Peixes_max_cores.gif) | ![t](Peixes/grafo_max_cores_Peixes.png) |
+| ![](Peixes/animacao_coloracao_peixes_max_cores.gif) | ![](Peixes/grafo_max_cores_peixes.png)|
 
 ## Coloração do mapa do Brasil <a name = "brasil"></a>
 
 ### Mínimo de cores: 4
 |                      Por etapas                      |                  Final                  |
 | :--------------------------------------------------: | :-------------------------------------: |
-| ![t](Brasil/animacao_coloracao_Brasil_min_cores.gif) | ![t](Brasil/grafo_min_cores_Brasil.png) |
+| ![](Brasil/animacao_coloracao_Brasil_min_cores.gif) | ![](Brasil/grafo_min_cores_brasil.png) |
 
 ### Máximo de cores: 6
 |                      Por etapas                      |                  Final                  |
 | :--------------------------------------------------: | :-------------------------------------: |
-| ![t](Brasil/animacao_coloracao_Brasil_max_cores.gif) | ![t](Brasil/grafo_max_cores_Brasil.png) |
+| ![](Brasil/animacao_coloracao_brasil_max_cores.gif) | ![](Brasil/grafo_max_cores_brasil.png) |
 
 
 
