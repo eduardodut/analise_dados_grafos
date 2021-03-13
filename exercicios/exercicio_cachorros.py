@@ -42,9 +42,9 @@ if __name__ == "__main__":
 
     observadores = simular(matriz_adjacencia, colorir_grafo, simulacoes_por_no = 1000)
     obs_max_cores, obs_min_cores = get_max_min_cores(observadores)
-    max_cores = max(obs_max_cores.sequencia_vetor_cores[-1])
-    min_cores = max(obs_min_cores.sequencia_vetor_cores[-1])
-    if max_cores == min_cores:
+     
+     
+    if obs_max_cores.num_cores == obs_min_cores.num_cores:
         sequencia_coloracao_para_gif(matriz_adjacencia, 
                                     obs_min_cores, 
                                     caminho+'/animacao_coloracao_'+ nome_exercicio, 
