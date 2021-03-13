@@ -24,7 +24,7 @@ class Observador:
 
 
 def colorir_grafo(matriz_adjacencia,
-                  node,
+                  *nodes,
                   lista_cores = None,
                   vizinhos_aleatorios=True,
                   observador=None):
@@ -33,11 +33,19 @@ def colorir_grafo(matriz_adjacencia,
     random.seed()
     if lista_cores is None:
         lista_cores = np.zeros_like(range(matriz_adjacencia.shape[0]),dtype=int)
+    if observador != None:
+            observador.num_passos += 1
+            
+    vizinhos_por_no = []
+    
+    sequencia_nos = list(nodes)  
 
+    if vizinhos_aleatorios:
+        random.shuffle(sequencia_nos)
 
-    if lista_cores[node] == 0:
+    for node in sequencia_nos:
         vizinhos = np.argwhere(matriz_adjacencia[node, :] == 1).reshape(-1)
-
+        vizinhos_por_no.append(vizinhos)
         cores_vizinhos = lista_cores[vizinhos]
         indices_vizinhos_com_cor = np.empty(shape=(0, 1), dtype=int)
         indices_vizinhos_sem_cor = np.empty(shape=(0, 1), dtype=int)
@@ -54,30 +62,29 @@ def colorir_grafo(matriz_adjacencia,
         lista_cores_disponiveis = np.ones(tamanho+2, dtype=bool)
         lista_cores_disponiveis[0] = False
         lista_cores_disponiveis[cores_vizinhos] = False
-        
+
         for i, disponivel in enumerate(lista_cores_disponiveis):
             if disponivel:
                 lista_cores[node] = i
                 break
-
-        
-
         if observador != None:
-            observador.atualizar(np.array(lista_cores))
-            
-        # inicia a chamada da função de coloração para cada um dos vizinhos que ainda não possuem cores
-        if len(indices_vizinhos_sem_cor) > 0:
-            if vizinhos_aleatorios:
-                random.shuffle(indices_vizinhos_sem_cor)
-            if observador != None:
-                observador.num_passos += 1
-            for i in indices_vizinhos_sem_cor:
-                colorir_grafo(matriz_adjacencia,
-                            vizinhos[i],
-                            lista_cores,
-                            vizinhos_aleatorios,
-                            observador)
-        return lista_cores
+            observador.atualizar(np.array(lista_cores))            
+    
+    vizinhos_por_no = np.unique(np.concatenate(vizinhos_por_no))
+    vizinhos_sem_cor = np.array([viz for viz in vizinhos_por_no if lista_cores[viz] == 0 ])
+    
+        
+    # inicia a chamada da função de coloração para cada um dos vizinhos que ainda não possuem cores
+    if len(vizinhos_sem_cor) > 0:
+       
+        
+        # for i in indices_vizinhos_sem_cor:
+        colorir_grafo(matriz_adjacencia,
+                    *tuple(vizinhos_sem_cor),
+                    lista_cores= lista_cores,
+                    vizinhos_aleatorios= vizinhos_aleatorios,
+                    observador=observador)
+    return lista_cores
         
 
 
@@ -144,7 +151,7 @@ def get_max_min_cores(observadores):
 
 
 def get_matriz_simulacao(num_nos, observadores):
-    matriz = np.array(np.array([max(observador.sequencia_vetor_cores[-1])
+    matriz = np.array(np.array([observador.num_cores
                                 for observador in observadores])).reshape(num_nos, -1)
     return matriz
 
@@ -232,7 +239,7 @@ def sequencia_coloracao_para_gif(matriz_adjacencia, observador, titulo, lista_la
             camera.snap()
 
     animation = camera.animate()
-    animation.save(titulo+".gif", fps=fps)
+    animation.save(titulo+".gif", fps=max(fps,1))
     plt.close(fig)
 
 

@@ -19,6 +19,11 @@ if __name__ == "__main__":
     os.makedirs(caminho, exist_ok=True)
     matriz_adjacencia = matriz_adjacencia_peixes
     labels = ['A','B','C','D','E','F','G']
+    ob = Observador()
+    colorir_grafo(matriz_adjacencia,
+                  0,
+                  vizinhos_aleatorios=True,
+                  observador=ob)
 
     observadores = simular(matriz_adjacencia, colorir_grafo, simulacoes_por_no = 1000)
     obs_max_cores, obs_min_cores = get_max_min_cores(observadores)
