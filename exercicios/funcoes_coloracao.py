@@ -67,8 +67,9 @@ def simular(matriz_adjacencia, funcao_coloracao, simulacoes_por_no = 1000):
     
     pool = Pool(n_cores)
     args = []
-    for i in range(simulacoes_por_no):
-        for p in range(matriz_adjacencia.shape[0]):
+    
+    for p in range(matriz_adjacencia.shape[0]):
+        for _ in range(simulacoes_por_no):
             args.append((matriz_adjacencia, funcao_coloracao,p))
 
     
