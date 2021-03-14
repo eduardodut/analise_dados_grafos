@@ -20,46 +20,41 @@ class Observador:
     def atualizar(self, vetor_atualizado):
         self.sequencia_vetor_cores.append(vetor_atualizado)
         self.num_cores = max(vetor_atualizado)
-        # self.num_passos += 1
 
 
 def colorir_grafo(matriz_adjacencia,
                   *nodes,
-                  lista_cores = None,
+                  lista_cores=None,
                   vizinhos_aleatorios=True,
                   observador=None):
     import numpy as np
     import random
     random.seed()
+
     if lista_cores is None:
-        lista_cores = np.zeros_like(range(matriz_adjacencia.shape[0]),dtype=int)
+        lista_cores = np.zeros_like(
+            range(matriz_adjacencia.shape[0]), dtype=int)
+
     if observador != None:
-            observador.num_passos += 1
-            
+        observador.num_passos += 1
+
     vizinhos_por_no = []
-    
-    sequencia_nos = list(nodes)  
+
+    sequencia_nos = list(nodes)
 
     if vizinhos_aleatorios:
         random.shuffle(sequencia_nos)
 
     for node in sequencia_nos:
-        vizinhos = np.argwhere(matriz_adjacencia[node, :] == 1).reshape(-1)
+
+        vizinhos = np.argwhere(matriz_adjacencia[node, :] != 0).reshape(-1)
+
         vizinhos_por_no.append(vizinhos)
         cores_vizinhos = lista_cores[vizinhos]
-        indices_vizinhos_com_cor = np.empty(shape=(0, 1), dtype=int)
-        indices_vizinhos_sem_cor = np.empty(shape=(0, 1), dtype=int)
 
-        for i, cor in enumerate(cores_vizinhos):
-            if cor == 0:
-                indices_vizinhos_sem_cor = np.append(indices_vizinhos_sem_cor, i)
-            else:
-                indices_vizinhos_com_cor = np.append(indices_vizinhos_com_cor, i)
-
-        # lista ordenada de cores únicas dos vizinhos
-        cores_vizinhos = cores_vizinhos[indices_vizinhos_com_cor]
-        tamanho = cores_vizinhos.max() if len(cores_vizinhos) > 0 else 0
-        lista_cores_disponiveis = np.ones(tamanho+2, dtype=bool)
+        cores_vizinhos = cores_vizinhos[cores_vizinhos > 0]
+        ultima_cor_utilizada = cores_vizinhos.max() if len(cores_vizinhos) > 0 else 0
+        lista_cores_disponiveis = np.ones(ultima_cor_utilizada+2, dtype=bool)
         lista_cores_disponiveis[0] = False
         lista_cores_disponiveis[cores_vizinhos] = False
 
@@ -67,25 +62,23 @@ def colorir_grafo(matriz_adjacencia,
             if disponivel:
                 lista_cores[node] = i
                 break
-        if observador != None:
-            observador.atualizar(np.array(lista_cores))            
-    
+    if observador != None:
+        observador.atualizar(np.array(lista_cores))
+
     vizinhos_por_no = np.unique(np.concatenate(vizinhos_por_no))
-    vizinhos_sem_cor = np.array([viz for viz in vizinhos_por_no if lista_cores[viz] == 0 ])
-    
-        
+    vizinhos_sem_cor = np.array(
+        [viz for viz in vizinhos_por_no if lista_cores[viz] == 0])
+
     # inicia a chamada da função de coloração para cada um dos vizinhos que ainda não possuem cores
     if len(vizinhos_sem_cor) > 0:
-       
-        
+
         # for i in indices_vizinhos_sem_cor:
         colorir_grafo(matriz_adjacencia,
-                    *tuple(vizinhos_sem_cor),
-                    lista_cores= lista_cores,
-                    vizinhos_aleatorios= vizinhos_aleatorios,
-                    observador=observador)
+                      *tuple(vizinhos_sem_cor),
+                      lista_cores=lista_cores,
+                      vizinhos_aleatorios=vizinhos_aleatorios,
+                      observador=observador)
     return lista_cores
-        
 
 
 def _simular(matriz_adjacencia, funcao_coloracao, node):
@@ -115,18 +108,20 @@ def simular(matriz_adjacencia, funcao_coloracao, simulacoes_por_no=1000):
 
 
 def get_max_min_cores(observadores):
-    lista_qtd_cores = np.array([observador.num_cores for observador in observadores])
+    lista_qtd_cores = np.array(
+        [observador.num_cores for observador in observadores])
     min_cores = max_cores = 0
     ind_min_cores = ind_max_cores = []
-    
-    lista_qtd_cores = np.unique(lista_qtd_cores)
-    
-    min_cores, max_cores = lista_qtd_cores[0],lista_qtd_cores[-1]
 
-    lista_passos = np.array([observador.num_passos for observador in observadores])
-    
+    lista_qtd_cores = np.unique(lista_qtd_cores)
+
+    min_cores, max_cores = lista_qtd_cores[0], lista_qtd_cores[-1]
+
+    lista_passos = np.array(
+        [observador.num_passos for observador in observadores])
+
     min_passos = lista_passos.max()
-    
+
     max_passos = lista_passos.min()
 
     indice_min_passos = indice_max_passos = 0
@@ -136,18 +131,13 @@ def get_max_min_cores(observadores):
             if obs.num_passos <= min_passos:
                 min_passos = obs.num_passos
                 indice_min_passos = i
-        
+
         if obs.num_cores == max_cores:
             if obs.num_passos >= max_passos:
                 max_passos = obs.num_passos
                 indice_max_passos = i
-    
-    
 
     return observadores[indice_max_passos], observadores[indice_min_passos]
-
-
-
 
 
 def get_matriz_simulacao(num_nos, observadores):
@@ -156,7 +146,22 @@ def get_matriz_simulacao(num_nos, observadores):
     return matriz
 
 
-def graph_to_gif(matriz_adjacencia, titulo, num_quadros=10, tempo_segundos=5, lista_labels=[]):
+def draw_grafo(matriz, plt_figure, dict_labels, cores, pos={}):
+    import networkx as nx
+    grafo = nx.from_numpy_array(matriz)
+    if pos == {}:
+        pos = nx.spring_layout(grafo, seed=1)
+    nx.draw(grafo,
+            pos,
+            ax=plt_figure.add_subplot(111),
+            labels=dict_labels,
+            node_color=cores,
+            font_color='white',
+            with_labels=True)
+
+
+def graph_to_gif(matriz_adjacencia, titulo, num_quadros=10, tempo_segundos=5, lista_labels=[],
+                   pos={}):
     import random
     random.seed()
     import networkx as nx
@@ -177,7 +182,10 @@ def graph_to_gif(matriz_adjacencia, titulo, num_quadros=10, tempo_segundos=5, li
     fig, ax = plt.subplots()
 
     camera = Camera(fig)
-    pos = nx.circular_layout(grafo)
+    # pos = nx.circular_layout(grafo)
+    # pos = nx.shell_layout(grafo)
+    if pos == {}:
+        pos = nx.spring_layout(grafo, seed=1)
     cores_atribuidas = []
     i = 20
 
@@ -202,7 +210,13 @@ def graph_to_gif(matriz_adjacencia, titulo, num_quadros=10, tempo_segundos=5, li
     plt.close(fig)
 
 
-def sequencia_coloracao_para_gif(matriz_adjacencia, observador, titulo, lista_labels=[], quadros_por_etapa: int = 2, segundos=5):
+def sequencia_coloracao_para_gif(matriz_adjacencia,
+                                 observador, titulo, 
+                                 lista_labels=[], 
+                                 quadros_por_etapa: int = 2,
+                                 segundos=5,
+                                   
+                                 pos={}):
     import networkx as nx
     from matplotlib import pyplot as plt
     from matplotlib.colors import get_named_colors_mapping
@@ -220,7 +234,10 @@ def sequencia_coloracao_para_gif(matriz_adjacencia, observador, titulo, lista_la
     fig, ax = plt.subplots()
 
     camera = Camera(fig)
-    pos = nx.circular_layout(grafo)
+    # pos = nx.circular_layout(grafo)
+    if pos == {}:
+        pos = nx.spring_layout(grafo, seed=1)
+    # pos = nx.planar_layout(grafo)
 
     fps = (quadros_por_etapa * len(observador.sequencia_vetor_cores)) // segundos
     cores_quadro_inicial = np.zeros(len(labels), dtype=int).reshape(1, -1)
@@ -239,11 +256,11 @@ def sequencia_coloracao_para_gif(matriz_adjacencia, observador, titulo, lista_la
             camera.snap()
 
     animation = camera.animate()
-    animation.save(titulo+".gif", fps=max(fps,1))
+    animation.save(titulo+".gif", fps=max(fps, 1))
     plt.close(fig)
 
 
-def coloracao_para_png(matriz_adjacencia, cores, nome_arquivo, lista_labels=[]):
+def coloracao_para_png(matriz_adjacencia, cores, nome_arquivo, lista_labels=[],   pos={}):
     import random
     random.seed()
     import networkx as nx
@@ -251,7 +268,6 @@ def coloracao_para_png(matriz_adjacencia, cores, nome_arquivo, lista_labels=[]):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    grafo = nx.from_numpy_array(matriz_adjacencia)
     labels = list(range(matriz_adjacencia.shape[0]))
 
     cores = CORES_UTILIZADAS[cores]
@@ -262,18 +278,12 @@ def coloracao_para_png(matriz_adjacencia, cores, nome_arquivo, lista_labels=[]):
     f = plt.figure()
     dict_ind_label = dict([(indice, letra)
                            for indice, letra in enumerate(labels)])
-    pos = nx.circular_layout(grafo)
-    nx.draw(grafo,
-            pos,
-            ax=f.add_subplot(111),
-            labels=dict_ind_label,
-            node_color=cores,
-            font_color='white',
-            with_labels=True)
+    # img = plt.imread("rain.jpg")
+    draw_grafo(matriz_adjacencia, f, dict_ind_label, cores, pos)
+
     f.savefig(nome_arquivo)
 
 
-# def animar_grafo(matriz_adjacencia,titulo,segundos,labels,matriz_simulacoes):
 def animar_grafo(matriz, titulo, segundos, labels):
     from matplotlib import pyplot as plt
     from matplotlib.colors import get_named_colors_mapping

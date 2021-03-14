@@ -38,13 +38,13 @@ if __name__ == "__main__":
      
     if obs_max_cores.num_cores == obs_min_cores.num_cores:
         sequencia_coloracao_para_gif(matriz_adjacencia, 
-                                    obs_min_cores, 
-                                    caminho+'/animacao_coloracao_'+ nome_exercicio, 
-                                    lista_labels=labels, 
-                                    quadros_por_etapa = 2, 
-                                    segundos=5)
+                                     obs_min_cores, 
+                                     caminho+'/animacao_coloracao_'+ nome_exercicio, 
+                                     lista_labels=labels, 
+                                     quadros_por_etapa = 2, 
+                                     segundos=5)
         coloracao_para_png(matriz_adjacencia,
-                           obs_max_cores.sequencia_vetor_cores[-1],
+                           obs_min_cores.sequencia_vetor_cores[-1],
                            caminho+'/grafo_'+nome_exercicio,
                            labels
                            )
