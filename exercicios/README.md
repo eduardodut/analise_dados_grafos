@@ -23,7 +23,7 @@
 ### Mínimo de casinhas: 3
 |                   Por etapas                       |               Final                |              Outras combinações   |
 | :---------------------------------------------:    | :--------------------------------: |:--------------------------------: |
-| ![](Cachorros/animacao_coloracao_Cachorros.gif)    | ![](Cachorros/grafo_Cachorros.png) |![](Cachorros/combinacoes_cores_grafo_cachorros.gif) |
+| ![](Cachorros/animacao_coloracao_Cachorros.gif)    | ![](Cachorros/grafo_Cachorros.png) |![](Cachorros/combinacoes_cores_grafo_Cachorros.gif) |
 
 ## Problema dos containers <a name = "containers"></a>
 
