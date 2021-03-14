@@ -23,14 +23,14 @@
 ### Mínimo de casinhas: 3
 |                   Por etapas                       |               Final                |              Outras combinações   |
 | :---------------------------------------------:    | :--------------------------------: |:--------------------------------: |
-| ![](Cachorros/animacao_coloracao_Cachorros.gif)    | ![](Cachorros/grafo_Cachorros.png) |![](Cachorros/combinacoes_cores_grafo_Cachorros.gif) |
+| ![](Cachorros/animacao_coloracao_Cachorros.gif)    | ![](Cachorros/grafo_Cachorros.png) |![](Cachorros/combinacoes_cores_grafo_cachorros.gif) |
 
 ## Problema dos containers <a name = "containers"></a>
 
 ### Mínimo de containers: 4
 |                    Por etapas                       |                Final                 |                Outras combinações    |
 | :-----------------------------------------------:   | :----------------------------------: | :----------------------------------: |
-| ![](Containers/animacao_coloracao_Containers.gif)   | ![](Containers/grafo_containers.png) | ![](Containers/combinacoes_cores_grafo_containers.gif) |
+| ![](Containers/animacao_coloracao_Containers.gif)   | ![](Containers/grafo_containers.png) | ![](Containers/combinacoes_cores_grafo_Containers.gif) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
