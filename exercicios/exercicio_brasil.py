@@ -32,33 +32,27 @@ array_coords = np.array([[76,  265],  # 'AC'
                          [406, 471],  # 'SP'
                          [416, 267]])  # 'TO'
 
-max_x = array_coords[:, 0].max()
-max_y = array_coords[:, 1].max()
+max_x = array_coords[:, 0].max()//2
+max_y = array_coords[:, 1].max()//2
 
-array_coords_exp = np.ones(shape=(array_coords.shape[0],array_coords.shape[1]+1),dtype=int)
-array_coords_exp[:,:-1] = array_coords
+array_coords_exp = np.ones(shape=(array_coords.shape[0], array_coords.shape[1]+1), dtype=int)
+array_coords_exp[:, :-1] = array_coords
 
-
-matriz_translacao_1 = np.array([[1, 0, -max_x//2],
-                                [0, 1, -max_y//2],
+matriz_translacao_1 = np.array([[1, 0, -max_x],
+                                [0, 1, -max_y],
                                 [0, 0, 1]])
 
-
 matriz_reflexao = np.array([[1, 0, 0],
-                           [0, -1, 0],
-                           [0, 0, 1]])
+                            [0, -1, 0],
+                            [0, 0, 1]])
 
-
-matriz_translacao_2 = np.array([[1, 0, max_x//2],
-                                [0, 1, max_y//2],
+matriz_translacao_2 = np.array([[1, 0, max_x],
+                                [0, 1, max_y],
                                 [0, 0, 1]])
 
 array_coords = matriz_translacao_2 @ matriz_reflexao @ matriz_translacao_1 @ array_coords_exp.T
 
-
-
-dict_coords = dict([(ind, t[:-1])
-                    for ind, t in enumerate(array_coords.T)])
+dict_coords = dict([(ind, t[:-1]) for ind, t in enumerate(array_coords.T)])
 
 dict_vizinhanca = {'AC': ["AM", "RO"],
                    'AL': ['PE', "SE", "BA"],
@@ -92,7 +86,6 @@ matriz_adjacencia = []
 args_pandas = {'index': estados, 'columns': estados}
 def to_pandas(x): return pd.DataFrame(x, **args_pandas)
 
-
 for chave, lista in dict_vizinhanca.items():
     linha = [int(sigla in lista) for sigla in estados]
     matriz_adjacencia.append(linha)
@@ -100,8 +93,7 @@ for chave, lista in dict_vizinhanca.items():
 matriz_adjacencia = to_pandas(matriz_adjacencia)
 
 # print(matriz_adjacencia)
-dict_graus = dict([(chave, len(lista))
-                   for chave, lista in dict_vizinhanca.items()])
+dict_graus = dict([(chave, len(lista)) for chave, lista in dict_vizinhanca.items()])
 
 d = np.diag(list(dict_graus.values()))
 lista_qtd_vizinhos = list(dict_graus.values())
@@ -138,7 +130,7 @@ if __name__ == "__main__":
                                      segundos=5,
                                      pos=dict_coords)
         coloracao_para_png(matriz_adjacencia,
-                           obs_max_cores.sequencia_vetor_cores[-1],
+                           obs_min_cores.sequencia_vetor_cores[-1],
                            caminho+'/grafo_'+nome_exercicio,
                            labels,
                            pos=dict_coords)

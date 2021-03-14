@@ -21,40 +21,40 @@
 ## Problema do canil <a name = "cachorros"></a>
 
 ### Mínimo de casinhas: 3
-|                   Por etapas                    |               Final                |
-| :---------------------------------------------: | :--------------------------------: |
-| ![](Cachorros/animacao_coloracao_Cachorros.gif) | ![](Cachorros/grafo_Cachorros.png) |
+|                   Por etapas                       |               Final                |              Outras combinações   |
+| :---------------------------------------------:    | :--------------------------------: |:--------------------------------: |
+| ![](Cachorros/animacao_coloracao_Cachorros.gif)    | ![](Cachorros/grafo_Cachorros.png) |![](Cachorros/combinacoes_cores_grafo_Cachorros.gif) |
 
 ## Problema dos containers <a name = "containers"></a>
 
 ### Mínimo de containers: 4
-|                    Por etapas                     |                Final                 |
-| :-----------------------------------------------: | :----------------------------------: |
-| ![](Containers/animacao_coloracao_Containers.gif) | ![](Containers/grafo_containers.png) |
+|                    Por etapas                       |                Final                 |                Outras combinações    |
+| :-----------------------------------------------:   | :----------------------------------: | :----------------------------------: |
+| ![](Containers/animacao_coloracao_Containers.gif)   | ![](Containers/grafo_containers.png) | ![](Containers/combinacoes_cores_grafo_containers.gif) |
 
 ## Problema dos aquários <a name = "peixes"></a>
 
 ### Mínimo de aquários: 3
-|                     Por etapas                      |                 Final                  |
-| :-------------------------------------------------: | :------------------------------------: |
-| ![](Peixes/animacao_coloracao_peixes_min_cores.gif) | ![](Peixes/grafo_min_cores_Peixes.png) |
+|                     Por etapas                      |                 Final                  |                 Outras combinações     |
+| :-------------------------------------------------: | :------------------------------------: | :------------------------------------: |
+| ![](Peixes/animacao_coloracao_peixes_min_cores.gif) | ![](Peixes/grafo_min_cores_Peixes.png) | ![](Peixes/combinacoes_cores_grafo_peixes.gif) |
 
 ### Máximo de aquários: 4
 |                     Por etapas                      |                 Final                  |
 | :-------------------------------------------------: | :------------------------------------: |
-| ![](Peixes/animacao_coloracao_peixes_max_cores.gif) | ![](Peixes/grafo_max_cores_Peixes.png)|
+| ![](Peixes/animacao_coloracao_peixes_max_cores.gif) | ![](Peixes/grafo_max_cores_Peixes.png) |
 
 ## Coloração do mapa do Brasil <a name = "brasil"></a>
 
 ### Mínimo de cores: 4
-|                      Por etapas                      |                  Final                  |
-| :--------------------------------------------------: | :-------------------------------------: |
-| ![](Brasil/animacao_coloracao_Brasil_min_cores.gif) | ![](Brasil/grafo_min_cores_Brasil.png) |
+|                      Por etapas                      |                  Final                  |                  Outras combinações     |
+| :--------------------------------------------------: | :-------------------------------------: | :-------------------------------------: |
+| ![](Brasil/animacao_coloracao_Brasil_min_cores.gif)  | ![](Brasil/grafo_min_cores_Brasil.png)  | ![](Brasil/combinacoes_cores_grafo_Brasil.gif)  |
 
 ### Máximo de cores: 5
 |                      Por etapas                      |                  Final                  |
 | :--------------------------------------------------: | :-------------------------------------: |
-| ![](Brasil/animacao_coloracao_Brasil_max_cores.gif) | ![](Brasil/grafo_max_cores_Brasil.png) |
+| ![](Brasil/animacao_coloracao_Brasil_max_cores.gif)  | ![](Brasil/grafo_max_cores_Brasil.png)  |
 
 
 
