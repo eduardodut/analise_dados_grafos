@@ -116,7 +116,7 @@ if __name__ == "__main__":
     os.makedirs(caminho + '/resultado_por_estado', exist_ok=True)
     matriz_adjacencia = matriz_adjacencia.values
     labels = estados
-
+    # dict_coords={}
     observadores = simular(
         matriz_adjacencia, colorir_grafo, simulacoes_por_no=1000)
     obs_max_cores, obs_min_cores = get_max_min_cores(observadores)

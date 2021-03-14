@@ -215,7 +215,6 @@ def sequencia_coloracao_para_gif(matriz_adjacencia,
                                  lista_labels=[], 
                                  quadros_por_etapa: int = 2,
                                  segundos=5,
-                                   
                                  pos={}):
     import networkx as nx
     from matplotlib import pyplot as plt
